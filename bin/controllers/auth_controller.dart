@@ -40,13 +40,12 @@ class AuthController extends RouterClassProperties {
       }
 
       final dateTimeCreated = DateTime.now().toUtc();
-      const duration = Duration(minutes: 30);
 
       final token = createJwt(
-          secretKey,
-          AuthTokenModel(userId: user.id, dateTimeCreated: dateTimeCreated)
-              .toJson(),
-          duration);
+          secretKey: secretKey,
+          payload:
+              AuthTokenModel(userId: user.id, dateTimeCreated: dateTimeCreated)
+                  .toJson());
 
       return Response.ok(json.encode({"token": token, "user": user.toJson()}));
     } catch (error) {
