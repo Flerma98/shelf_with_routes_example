@@ -141,13 +141,6 @@ class UserViewModel extends UserBasicModel {
       substitutionValues.addAll(where!.values());
     }
 
-    print(DatabaseProperties.makeQuery(UsersSqlTable.tableName,
-        where: where,
-        orderBy: orderBy,
-        groupBy: groupBy,
-        having: having,
-        offset: offset));
-
     final results = await databaseConnection.query(
         DatabaseProperties.makeQuery(UsersSqlTable.tableName,
             where: where,
