@@ -21,6 +21,7 @@ abstract class DatabaseProperties {
     ${(having != null) ? "HAVING $having" : ""}
     ${(limit != null) ? "LIMIT $limit" : ""}
     ${(offset != null) ? "OFFSET $offset" : ""}
+    ;
     """
         .trim();
     return query;

@@ -12,6 +12,7 @@ dependencies:
   shelf_router:
   postgres:
   jwt_decoder:
+  crypto:
 
 dev_dependencies:
   lints:

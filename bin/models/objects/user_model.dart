@@ -12,6 +12,10 @@ abstract class UsersSqlTable {
   static String isEnabled = "is_enabled";
   static String dateTimeCreated = "date_time_created";
   static String userType = "user_type";
+
+  static String whereConditionForPassword(final String passwordToValidate) {
+    return "crypt($passwordToValidate, password)";
+  }
 }
 
 class UserBasicModel {
@@ -83,10 +87,6 @@ class UserViewModel extends UserBasicModel {
         UsersSqlTable.dateTimeCreated: dateTimeCreated.toIso8601String()
       };
 
-  String whereConditionForPassword(final String passwordToValidate) {
-    return "crypt('$passwordToValidate', ${UsersSqlTable.password})";
-  }
-
   static Future<UserViewModel> fromMapDatabase(
       final Map<String, dynamic> map) async {
     return UserViewModel(
@@ -140,6 +140,14 @@ class UserViewModel extends UserBasicModel {
     if (where?.values().isNotEmpty == true) {
       substitutionValues.addAll(where!.values());
     }
+
+    print(DatabaseProperties.makeQuery(UsersSqlTable.tableName,
+        where: where,
+        orderBy: orderBy,
+        groupBy: groupBy,
+        having: having,
+        offset: offset));
+
     final results = await databaseConnection.query(
         DatabaseProperties.makeQuery(UsersSqlTable.tableName,
             where: where,
@@ -147,8 +155,7 @@ class UserViewModel extends UserBasicModel {
             groupBy: groupBy,
             having: having,
             offset: offset),
-        substitutionValues:
-            (substitutionValues.isEmpty) ? null : substitutionValues);
+        substitutionValues: substitutionValues);
     if (results.isEmpty) return null;
     return await fromMapDatabase(results.first.toColumnMap());
   }

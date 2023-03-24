@@ -4,11 +4,13 @@ import 'package:shelf/shelf.dart';
 import 'package:shelf_router/src/router.dart';
 
 import '../models/enums/user_type.dart';
+import '../models/objects/auth_token_model.dart';
 import '../models/objects/user_model.dart';
+import '../models/postgres_properties/where_sql_helper.dart';
 import 'properties/router_class_properties.dart';
 
 class AuthController extends RouterClassProperties {
-  AuthController({required super.databaseConnection});
+  AuthController({required super.databaseConnection, required super.secretKey});
 
   Future<Response> login(Request request) async {
     try {
@@ -19,10 +21,34 @@ class AuthController extends RouterClassProperties {
             json.encode({"error": "Invalid credentials"}));
       }
 
-      final user = await UserViewModel.getItemFromDatabase(databaseConnection);
+      final user = await UserViewModel.getItemFromDatabase(databaseConnection,
+          where: WhereSqlHelper([
+            "${UsersSqlTable.username} = @${UsersSqlTable.username}",
+            "${UsersSqlTable.password} = ${UsersSqlTable.whereConditionForPassword("@${UsersSqlTable.password}")}"
+          ], clausesValues: [
+            WhereValuesHelper(
+                parameterName: UsersSqlTable.username,
+                value: basicAuth.username),
+            WhereValuesHelper(
+                parameterName: UsersSqlTable.password,
+                value: basicAuth.password)
+          ]));
 
-      return Response.ok(json.encode(
-          {"username": basicAuth.username, "password": basicAuth.password}));
+      if (user == null) {
+        return Response.notFound(json.encode({"error": "user not found"}));
+      }
+
+      final dateTimeCreated = DateTime.now().toUtc();
+      const duration = Duration(minutes: 30);
+
+      final token = createJwt(
+          secretKey,
+          AuthTokenRegisterModel(
+                  userId: user.id, dateTimeCreated: dateTimeCreated)
+              .toJson(),
+          duration);
+
+      return Response.ok(json.encode({"token": token, "user": user.toJson()}));
     } catch (error) {
       return Response.badRequest(
           body: json.encode({"error": error.toString()}));

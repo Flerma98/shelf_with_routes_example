@@ -3,12 +3,16 @@ import 'dart:convert';
 import 'package:postgres/postgres.dart';
 import 'package:shelf_router/shelf_router.dart';
 
+import '../../methods/token_methods.dart';
 import '../../models/objects/basic_auth_model.dart';
 
-class RouterClassProperties {
-  RouterClassProperties({required this.databaseConnection});
+class RouterClassProperties extends TokenMethods {
+  RouterClassProperties(
+      {required this.databaseConnection, required this.secretKey});
 
   PostgreSQLConnection databaseConnection;
+
+  String secretKey;
 
   late Router router;
 
