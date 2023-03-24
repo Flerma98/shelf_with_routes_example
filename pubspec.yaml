@@ -1,0 +1,16 @@
+name: shelf_example
+description: A sample command-line application.
+version: 1.0.0
+# repository: https://github.com/my_org/my_repo
+
+environment:
+  sdk: ^3.0.0-362.0.dev
+
+# Add regular dependencies here.
+dependencies:
+  shelf:
+  shelf_router:
+
+dev_dependencies:
+  lints:
+  test:
