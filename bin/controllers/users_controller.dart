@@ -3,9 +3,12 @@ import 'dart:convert';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/src/router.dart';
 
+import '../models/objects/user_model.dart';
 import 'properties/router_class_properties.dart';
 
 class UsersController extends RouterClassProperties {
+  UsersController({required super.databaseConnection});
+
   Future<Response> getAllUsers(Request request) async {
     try {
       final token = getTokenOfBearerHeader(request.headers["authorization"]);
@@ -14,9 +17,8 @@ class UsersController extends RouterClassProperties {
             json.encode({"error": "Invalid credentials"}));
       }
 
-      return Response.ok(json.encode([
-        {"token": token}
-      ]));
+      return Response.ok(json.encode(await UserViewModel.getListFromDatabase(
+          databaseConnection)));
     } catch (error) {
       return Response.badRequest(
           body: json.encode({"error": error.toString()}));

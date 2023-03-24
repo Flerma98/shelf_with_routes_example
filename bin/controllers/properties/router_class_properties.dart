@@ -1,11 +1,16 @@
 import 'dart:convert';
 
+import 'package:postgres/postgres.dart';
 import 'package:shelf_router/shelf_router.dart';
 
 import '../../models/objects/basic_auth_model.dart';
 
-abstract class RouterClassProperties {
-  Router get router;
+class RouterClassProperties {
+  RouterClassProperties({required this.databaseConnection});
+
+  PostgreSQLConnection databaseConnection;
+
+  late Router router;
 
   BasicAuthModel? validateBasicAuth(final String? authorizationHeader) {
     if (authorizationHeader == null ||
