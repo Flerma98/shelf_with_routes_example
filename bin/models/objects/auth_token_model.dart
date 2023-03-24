@@ -1,25 +1,15 @@
-class AuthTokenRegisterModel {
+class AuthTokenModel {
   final int userId;
   final DateTime dateTimeCreated;
 
-  AuthTokenRegisterModel({required this.userId, required this.dateTimeCreated});
+  AuthTokenModel({required this.userId, required this.dateTimeCreated});
 
   Map<String, dynamic> toJson() =>
       {"userId": userId, "dateTimeCreated": dateTimeCreated.toIso8601String()};
-}
 
-class AuthTokenModel extends AuthTokenRegisterModel {
-  final DateTime? dateTimeExpiration;
-
-  AuthTokenModel(
-      {required super.userId,
-      required super.dateTimeCreated,
-      this.dateTimeExpiration});
-
-  @override
-  Map<String, dynamic> toJson() => {
-        "userId": userId,
-        "dateTimeCreated": dateTimeCreated.toIso8601String(),
-        "dateTimeExpiration": dateTimeExpiration?.toIso8601String()
-      };
+  static AuthTokenModel fromMapDecoded(final Map<String, dynamic> map) {
+    return AuthTokenModel(
+        userId: map["userId"],
+        dateTimeCreated: DateTime.parse(map["dateTimeCreated"]));
+  }
 }

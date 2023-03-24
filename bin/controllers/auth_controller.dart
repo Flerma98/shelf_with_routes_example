@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/src/router.dart';
 
@@ -43,12 +44,42 @@ class AuthController extends RouterClassProperties {
 
       final token = createJwt(
           secretKey,
-          AuthTokenRegisterModel(
-                  userId: user.id, dateTimeCreated: dateTimeCreated)
+          AuthTokenModel(userId: user.id, dateTimeCreated: dateTimeCreated)
               .toJson(),
           duration);
 
       return Response.ok(json.encode({"token": token, "user": user.toJson()}));
+    } catch (error) {
+      return Response.badRequest(
+          body: json.encode({"error": error.toString()}));
+    }
+  }
+
+  Future<Response> myUser(Request request) async {
+    try {
+      final token = getTokenOfBearerHeader(request.headers["authorization"]);
+      if (token == null) {
+        return Response.unauthorized(
+            json.encode({"error": "Invalid credentials"}));
+      }
+
+      final decodedToken =
+          AuthTokenModel.fromMapDecoded(JwtDecoder.decode(token));
+
+      final userByToken = await UserViewModel.getItemFromDatabase(
+          databaseConnection,
+          where: WhereSqlHelper([
+            "${UsersSqlTable.id} = @${UsersSqlTable.id}"
+          ], clausesValues: [
+            WhereValuesHelper(
+                parameterName: UsersSqlTable.id, value: decodedToken.userId)
+          ]));
+
+      if (userByToken == null) {
+        return Response.notFound(json.encode({"error": "user not found"}));
+      }
+
+      return Response.ok(json.encode(userByToken.toJson()));
     } catch (error) {
       return Response.badRequest(
           body: json.encode({"error": error.toString()}));
@@ -72,5 +103,6 @@ class AuthController extends RouterClassProperties {
   @override
   Router get router => Router()
     ..get("/login", login)
+    ..get("/my_user", myUser)
     ..post("/register", register);
 }
