@@ -34,6 +34,7 @@ class AuthController extends RouterClassProperties {
     }
   }
 
+  ///AUTH ROUTES
   @override
   Router get router => Router()
     ..get("/login", login)

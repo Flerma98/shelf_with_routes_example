@@ -43,6 +43,7 @@ class UsersController extends RouterClassProperties {
     }
   }
 
+  ///USERS ROUTES
   @override
   Router get router => Router()
     ..get("/", getAllUsers)
